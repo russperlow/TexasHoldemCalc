@@ -10,16 +10,16 @@ namespace TexasHoldemCalc
     {
         static void Main(string[] args)
         {
-            Deck deck = new Deck();
-            Table table = StartUpInput(deck);
+            Table table = StartUpInput();
+            table.NewHand();
             Console.ReadLine();
         }
 
         /// <summary>
         /// Gets all the startup information
         /// </summary>
-        /// <returns></returns>
-        public static Table StartUpInput(Deck deck)
+        /// <returns>The game table object</returns>
+        public static Table StartUpInput()
         {
             string userInput;
             Console.WriteLine("How many players would you like to play against? 1-8");
@@ -43,7 +43,8 @@ namespace TexasHoldemCalc
             }
             int smallBlind = Int32.Parse(userInput);
 
-            return new Table(players, smallBlind, deck);
+            return new Table(players, smallBlind);
         }
+
     }
 }

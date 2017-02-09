@@ -34,20 +34,21 @@ namespace TexasHoldemCalc
     {
         List<Card> newDeckOrder; // Original deck of cards always in same order
         List<Card> tempDeck; // Used for removing cards when shuffling
-        List<Card> shuffledDeck; // The deck used in the game
+        Queue<Card> shuffledDeck; // The deck used in the game
         Random rand;
+        Table table;
 
         /// <summary>
         /// Initializes The Deck Class
         /// </summary>
-        public Deck()
+        public Deck(Table table)
         {
             // Initializes all objects & lists
             newDeckOrder = new List<Card>();
-            shuffledDeck = new List<Card>();
+            shuffledDeck = new Queue<Card>();
             tempDeck = new List<Card>();
             rand = new Random();
-
+            this.table = table;
             // Creates the deck in NDO
             for(int i = 0; i < 4; i++)
             {
@@ -56,9 +57,6 @@ namespace TexasHoldemCalc
                     newDeckOrder.Add(new Card((Suits)i, (Values)j));
                 }
             }
-
-            // Makes sure shuffled deck has 52 occupied spaces
-            shuffledDeck = newDeckOrder;
         }
 
         /// <summary>
@@ -84,7 +82,7 @@ namespace TexasHoldemCalc
             for (int i = 0; i < 52; i++)
             {
                 chosenCard = rand.Next(0, 52-i);
-                shuffledDeck[i] = tempDeck[chosenCard];
+                shuffledDeck.Enqueue(tempDeck[chosenCard]);
                 tempDeck.Remove(tempDeck[chosenCard]);   // Makes sure a card can't be repeated
             }
         }
@@ -92,9 +90,51 @@ namespace TexasHoldemCalc
         /// <summary>
         /// Deals out the cards to each player
         /// </summary>
-        public void Deal(int dealerPosition)
+        public void Deal(int dealerPosition, int playerCount)
         {
-            
+            for(int i = 0; i < playerCount * 2; i++)
+            {
+                if(dealerPosition + i < playerCount)
+                {
+                    if (dealerPosition + i != 0)
+                    {
+                        table.CurrentPlayers[dealerPosition + i -1].Hand.Add(shuffledDeck.Dequeue());
+                    }
+                    else
+                    {
+                        shuffledDeck.Peek().FaceUp = true;
+                        table.PlayerObj.Hand.Add(shuffledDeck.Dequeue());
+                    }
+                }
+                else
+                {
+                    int temp = dealerPosition + i - playerCount;
+
+                    if(temp > (playerCount * 2 - 1))
+                    {
+                        temp = dealerPosition + i - (playerCount * 2);
+                    }
+
+                    if(temp == 0)
+                    {
+                        shuffledDeck.Peek().FaceUp = true;
+                        table.PlayerObj.Hand.Add(shuffledDeck.Dequeue());
+                    }
+                    else
+                    {
+                        table.CurrentPlayers[temp].Hand.Add(shuffledDeck.Dequeue());
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Deals out the community cards
+        /// </summary>
+        public void DealCommunityCards()
+        {
+            shuffledDeck.Peek();
+            table.CommunityCards.Add(shuffledDeck.Dequeue());
         }
     }
 }

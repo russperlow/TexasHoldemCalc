@@ -14,10 +14,12 @@ namespace TexasHoldemCalc
         // Fields
         int chips;
         int playerNumber;
+        List<Card> hand;
 
         // Properties
         public int Chips { get { return chips; } set { chips = value; } }
         public int PlayerNumber { get { return playerNumber; } }
+        public List<Card> Hand { get { return hand; } set { hand = value; } }
 
         /// <summary>
         /// Constuctor
@@ -28,6 +30,7 @@ namespace TexasHoldemCalc
         {
             this.chips = chips;
             this.playerNumber = playerNumber;
+            hand = new List<Card>();
         }
     }
 }

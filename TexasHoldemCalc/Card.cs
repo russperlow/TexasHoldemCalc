@@ -42,5 +42,22 @@ namespace TexasHoldemCalc
                     return Value.ToString();
             }
         }
+
+        public string SuitsToString()
+        {
+            switch (Suit)
+            {
+                case Suits.Spades:
+                    return "Spades";
+                case Suits.Hearts:
+                    return "Hearts";
+                case Suits.Diamonds:
+                    return "Diamonds";
+                case Suits.Clubs:
+                    return "Clubs";
+                default:
+                    return "";
+            }
+        }
     }
 }
