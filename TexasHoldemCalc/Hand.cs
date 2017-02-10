@@ -14,6 +14,8 @@ namespace TexasHoldemCalc
         Card cOne, cTwo, cThree, cFour, cFive, cSix, cSeven;
         List<Card> handList;
 
+        public List<Card> HandList { get { return handList; } }
+
         public Hand(Card cOne, Card cTwo, Card cThree, Card cFour, Card cFive, Card cSix, Card cSeven)
         {
             this.cOne = cOne;
