@@ -11,26 +11,9 @@ namespace TexasHoldemCalc
     /// </summary>
     class AIPlayer
     {
-        // Fields
-        int chips;
-        int playerNumber;
-        List<Card> hand;
-
-        // Properties
-        public int Chips { get { return chips; } set { chips = value; } }
-        public int PlayerNumber { get { return playerNumber; } }
-        public List<Card> Hand { get { return hand; } set { hand = value; } }
-
-        /// <summary>
-        /// Constuctor
-        /// </summary>
-        /// <param name="chips">Starting Chips</param>
-        /// <param name="playerNumber">Position Number</param>
-        public AIPlayer(int chips, int playerNumber)
+        public BettingOptions Betting(int betAmount)
         {
-            this.chips = chips;
-            this.playerNumber = playerNumber;
-            hand = new List<Card>();
+            return BettingOptions.Fold;
         }
     }
 }

@@ -11,7 +11,7 @@ namespace TexasHoldemCalc
         static void Main(string[] args)
         {
             Table table = StartUpInput();
-            table.NewHand();
+            table.GameLoop();
             Console.ReadLine();
         }
 

@@ -46,6 +46,8 @@
     <Compile Include="AIPlayer.cs" />
     <Compile Include="Card.cs" />
     <Compile Include="Deck.cs" />
+    <Compile Include="Hand.cs" />
+    <Compile Include="HandCombination.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

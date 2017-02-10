@@ -98,12 +98,12 @@ namespace TexasHoldemCalc
                 {
                     if (dealerPosition + i != 0)
                     {
-                        table.CurrentPlayers[dealerPosition + i -1].Hand.Add(shuffledDeck.Dequeue());
+                        table.CurrentPlayers[dealerPosition + i].Hand.Add(shuffledDeck.Dequeue());
                     }
                     else
                     {
                         shuffledDeck.Peek().FaceUp = true;
-                        table.PlayerObj.Hand.Add(shuffledDeck.Dequeue());
+                        table.CurrentPlayers[0].Hand.Add(shuffledDeck.Dequeue());
                     }
                 }
                 else
@@ -118,7 +118,7 @@ namespace TexasHoldemCalc
                     if(temp == 0)
                     {
                         shuffledDeck.Peek().FaceUp = true;
-                        table.PlayerObj.Hand.Add(shuffledDeck.Dequeue());
+                        table.CurrentPlayers[0].Hand.Add(shuffledDeck.Dequeue());
                     }
                     else
                     {
@@ -129,12 +129,16 @@ namespace TexasHoldemCalc
         }
 
         /// <summary>
-        /// Deals out the community cards
+        /// Deals out community cards
         /// </summary>
-        public void DealCommunityCards()
+        /// <param name="cardsToDeal">The number of cards to deal</param>
+        public void DealCommunityCards(int cardsToDeal)
         {
-            shuffledDeck.Peek();
-            table.CommunityCards.Add(shuffledDeck.Dequeue());
+            for (int i = 0; i < cardsToDeal; i++)
+            {
+                shuffledDeck.Peek().FaceUp = true;
+                table.CommunityCards.Add(shuffledDeck.Dequeue());
+            }
         }
     }
 }
