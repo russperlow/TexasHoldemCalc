@@ -268,7 +268,50 @@ namespace TexasHoldemCalc
 
         public Hand GetRoyalFlushHand(Hand hand)
         {
-            return null;
+            Hand royalFlush = new Hand();
+            Suits suit;
+            // Loops through 4 times once for every suit
+            for (int i = 0; i < 4; i++)
+            {
+                switch (i)
+                {
+                    case 0:
+                        suit = Suits.Spades;
+                        break;
+                    case 1:
+                        suit = Suits.Hearts;
+                        break;
+                    case 2:
+                        suit = Suits.Diamonds;
+                        break;
+                    default:
+                        suit = Suits.Clubs;
+                        break;
+                }
+
+                // Checks for the royal flush highest to lowest, stops if a card isn't in the hand
+                if (hand.Contains(Values.Ace, suit))
+                {
+                    if (hand.Contains(Values.King, suit))
+                    {
+                        if (hand.Contains(Values.Queen, suit))
+                        {
+                            if (hand.Contains(Values.Jack, suit))
+                            {
+                                if (hand.Contains(Values.Ten, suit))
+                                {
+                                    royalFlush.HandList.Add(new Card(suit, Values.Ace));
+                                    royalFlush.HandList.Add(new Card(suit, Values.King));
+                                    royalFlush.HandList.Add(new Card(suit, Values.Queen));
+                                    royalFlush.HandList.Add(new Card(suit, Values.Jack));
+                                    royalFlush.HandList.Add(new Card(suit, Values.Ten));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return royalFlush;
         }
 
         public Hand GetStraightFlushHand(Hand hand)

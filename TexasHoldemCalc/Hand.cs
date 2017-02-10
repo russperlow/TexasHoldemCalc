@@ -11,11 +11,17 @@ namespace TexasHoldemCalc
     /// </summary>
     class Hand
     {
+        // Fields
         Card cOne, cTwo, cThree, cFour, cFive, cSix, cSeven;
         List<Card> handList;
 
+        // Properties
         public List<Card> HandList { get { return handList; } }
 
+        /// <summary>
+        /// Constuctor, gets all 7 cards and then storts them
+        /// </summary>
+        /// <param name="cNum">The cards of the hand numbered 1-7</param>
         public Hand(Card cOne, Card cTwo, Card cThree, Card cFour, Card cFive, Card cSix, Card cSeven)
         {
             this.cOne = cOne;
@@ -29,6 +35,15 @@ namespace TexasHoldemCalc
             handList = new List<Card>() { cOne, cTwo, cThree, cFour, cFive, cSix, cSeven };
             SortHand();
         }
+
+        /// <summary>
+        /// Default Constructor
+        /// </summary>
+        public Hand()
+        {
+            handList = new List<Card>();
+        }
+        
 
 
         /// <summary>
