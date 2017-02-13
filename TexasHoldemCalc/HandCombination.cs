@@ -55,6 +55,7 @@ namespace TexasHoldemCalc
 
             }
         }
+
         #region HandCheck
 
         /// <summary>
@@ -316,47 +317,270 @@ namespace TexasHoldemCalc
 
         public Hand GetStraightFlushHand(Hand hand)
         {
-            return null;
+            Hand straightFlush = new Hand();
+            for (int i = 0; i < hand.HandList.Count() - 4; i++)
+            {
+                if (hand.Contains(hand.HandList[i].Value - 1, hand.HandList[i].Suit))
+                {
+                    if (hand.Contains(hand.HandList[i].Value - 2, hand.HandList[i].Suit))
+                    {
+                        if (hand.Contains(hand.HandList[i].Value - 3, hand.HandList[i].Suit))
+                        {
+                            if (hand.Contains(hand.HandList[i].Value - 4, hand.HandList[i].Suit))
+                            {
+                                straightFlush.HandList.Add(hand.HandList[i]);
+                                straightFlush.HandList.Add(hand.HandList[i+1]);
+                                straightFlush.HandList.Add(hand.HandList[i+2]);
+                                straightFlush.HandList.Add(hand.HandList[i+3]);
+                                straightFlush.HandList.Add(hand.HandList[i+4]);
+                            }
+                        }
+                    }
+                }
+            }
+            return straightFlush;
         }
 
         public Hand GetFourOfAKindHand(Hand hand)
         {
-            return null;
+            Hand fourOfAKind = new Hand();
+            Card temp;
+            for (int i = 0; i < hand.HandList.Count() - 3; i++)
+            {
+                temp = hand.HandList[i];
+                if (temp.Value == hand.HandList[i + 1].Value && temp.Value == hand.HandList[i + 2].Value && temp.Value == hand.HandList[i + 3].Value)
+                {
+                    fourOfAKind.HandList.Add(hand.HandList[i]);
+                    fourOfAKind.HandList.Add(hand.HandList[i+1]);
+                    fourOfAKind.HandList.Add(hand.HandList[i+2]);
+                    fourOfAKind.HandList.Add(hand.HandList[i+3]);
+
+                    // Search for the high card by finding the first card that isn't a part of the four of a kind
+                    for(int j = 0; j < hand.HandList.Count(); j++)
+                    {
+                        if(hand.HandList[j].Value != temp.Value)
+                        {
+                            fourOfAKind.HandList.Add(hand.HandList[j]);
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+            return fourOfAKind;
         }
 
         public Hand GetFullHouseHand(Hand hand)
         {
-            return null;
+            Hand fullHouse = new Hand();
+            for (int i = 0; i < hand.HandList.Count() - 2; i++)
+            {
+                if (hand.HandList[i].Value == hand.HandList[i + 1].Value && hand.HandList[i].Value == hand.HandList[i + 2].Value)
+                {
+                    // Make sure to start j at i + 1 so it doesn't pick up the same cards from above
+                    for (int j = i + 1; j < hand.HandList.Count() - 1; j++)
+                    {
+                        if (hand.HandList[j].Value == hand.HandList[j + 1].Value)
+                        {
+                            fullHouse.HandList.Add(hand.HandList[i]);
+                            fullHouse.HandList.Add(hand.HandList[i+1]);
+                            fullHouse.HandList.Add(hand.HandList[i+2]);
+                            fullHouse.HandList.Add(hand.HandList[j]);
+                            fullHouse.HandList.Add(hand.HandList[j+1]);
+                        }
+                    }
+                }
+            }
+            return fullHouse;
         }
 
         public Hand GetFlushHand(Hand hand)
         {
-            return null;
+            Hand flush = new Hand();
+            int hearts = 0;
+            int diamonds = 0;
+            int spades = 0;
+            int clubs = 0;
+
+            foreach (Card c in hand.HandList)
+            {
+                switch (c.Suit)
+                {
+                    case Suits.Spades:
+                        spades++;
+                        break;
+                    case Suits.Hearts:
+                        hearts++;
+                        break;
+                    case Suits.Diamonds:
+                        diamonds++;
+                        break;
+                    case Suits.Clubs:
+                        clubs++;
+                        break;
+                }
+            }
+
+            for(int i = 0; i < hand.HandList.Count(); i++)
+            {
+                if(diamonds >= 5 && hand.HandList[i].Suit == Suits.Diamonds)
+                {
+                    flush.HandList.Add(hand.HandList[i]);
+                }
+                else if(spades >= 5 && hand.HandList[i].Suit == Suits.Spades)
+                {
+                    flush.HandList.Add(hand.HandList[i]);
+                }
+                else if(hearts >= 5 && hand.HandList[i].Suit == Suits.Hearts)
+                {
+                    flush.HandList.Add(hand.HandList[i]);
+                }
+                else if(clubs >= 5 && hand.HandList[i].Suit == Suits.Clubs)
+                {
+                    flush.HandList.Add(hand.HandList[i]);
+                }
+
+                if(flush.HandList.Count == 5)
+                {
+                    break;
+                }
+            }
+            return flush;
         }
 
         public Hand GetStraightHand(Hand hand)
         {
-            return null;
+            Hand straight = new Hand();
+            for (int i = 0; i < hand.HandList.Count() - 4; i++)
+            {
+                if (hand.Contains(hand.HandList[i].Value - 1))
+                {
+                    if (hand.Contains(hand.HandList[i].Value - 2))
+                    {
+                        if (hand.Contains(hand.HandList[i].Value - 3))
+                        {
+                            if (hand.Contains(hand.HandList[i].Value - 4))
+                            {
+                                straight.HandList.Add(hand.HandList[i]);
+                                straight.HandList.Add(hand.HandList[i+1]);
+                                straight.HandList.Add(hand.HandList[i+2]);
+                                straight.HandList.Add(hand.HandList[i+3]);
+                                straight.HandList.Add(hand.HandList[i+4]);
+                            }
+                        }
+                    }
+                }
+            }
+            return straight;
         }
 
         public Hand GetThreeOfAKindHand(Hand hand)
         {
-            return null;
+            Hand threeOfAKind = new Hand();
+            for (int i = 0; i < hand.HandList.Count() - 2; i++)
+            {
+                if (hand.HandList[i].Value == hand.HandList[i + 1].Value && hand.HandList[i].Value == hand.HandList[i + 2].Value)
+                {
+                    threeOfAKind.HandList.Add(hand.HandList[i]);
+                    threeOfAKind.HandList.Add(hand.HandList[i+1]);
+                    threeOfAKind.HandList.Add(hand.HandList[i+2]);
+
+                    for(int j = 0; j < hand.HandList.Count(); j++)
+                    {
+                        if(hand.HandList[j].Value != threeOfAKind.HandList[i].Value)
+                        {
+                            threeOfAKind.HandList.Add(hand.HandList[j]);
+                        }
+
+                        if(threeOfAKind.HandList.Count == 5)
+                        {
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+            return threeOfAKind;
         }
 
         public Hand GetTwoPairHand(Hand hand)
         {
-            return null;
+            Hand twoPair = new Hand();
+            for (int i = 0; i < hand.HandList.Count() - 1; i++)
+            {
+                if (hand.HandList[i].Value == hand.HandList[i + 1].Value)
+                {
+                    // Make sure to start j at i + 1 so it doesn't pick up the same cards from above
+                    for (int j = i + 1; j < hand.HandList.Count() - 1; j++)
+                    {
+                        if (hand.HandList[j].Value == hand.HandList[j + 1].Value)
+                        {
+                            twoPair.HandList.Add(hand.HandList[i]);
+                            twoPair.HandList.Add(hand.HandList[i + 1]);
+                            twoPair.HandList.Add(hand.HandList[j]);
+                            twoPair.HandList.Add(hand.HandList[j + 1]);
+
+                            for(int k = 0; k < hand.HandList.Count; k++)
+                            {
+                                if(hand.HandList[k].Value != twoPair.HandList[i].Value && hand.HandList[k].Value != twoPair.HandList[j].Value)
+                                {
+                                    twoPair.HandList.Add(hand.HandList[k]);
+                                    break;
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+                break;
+            }
+            return twoPair;
         }
 
         public Hand GetPairHand(Hand hand)
         {
-            return null;
+            Hand pair = new Hand();
+
+            for (int i = 0; i < hand.HandList.Count() - 1; i++)
+            {
+                if (hand.HandList[i].Value == hand.HandList[i + 1].Value)
+                {
+                    pair.HandList.Add(hand.HandList[i]);
+                    pair.HandList.Add(hand.HandList[i + 1]);
+
+                    for(int j = 0; j < hand.HandList.Count(); j++)
+                    {
+                        if(hand.HandList[j].Value != hand.HandList[i].Value)
+                        {
+                            pair.HandList.Add(hand.HandList[j]);
+                        }
+
+                        if(pair.HandList.Count >= 5)
+                        {
+                            break;
+                        }
+                    }
+                }
+                break;
+            }
+            return pair;
         }
 
         public Hand GetHighCardHand(Hand hand)
         {
-            return null;
+            Hand highCard = new Hand();
+
+            for(int i = 0; i < hand.HandList.Count; i++)
+            {
+                highCard.HandList.Add(hand.HandList[i]);
+
+                if(highCard.HandList.Count >= 5)
+                {
+                    break;
+                }
+            }
+
+            return highCard;
         }
 
         #endregion GetBestHand
