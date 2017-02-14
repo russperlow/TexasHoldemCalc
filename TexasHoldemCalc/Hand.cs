@@ -12,11 +12,14 @@ namespace TexasHoldemCalc
     class Hand
     {
         // Fields
-        Card cOne, cTwo, cThree, cFour, cFive, cSix, cSeven;
+        Card cOne, cTwo, cThree, cFour, cFive, cSix, cSeven, highCard;
         List<Card> handList;
+        HandCombinations combination;
 
         // Properties
         public List<Card> HandList { get { return handList; } }
+        public HandCombinations Combination { get { return combination; } set { combination = value; } }
+        public Card HighCard { get { return highCard; } set { highCard = value; } }
 
         /// <summary>
         /// Constuctor, gets all 7 cards and then storts them
@@ -42,6 +45,7 @@ namespace TexasHoldemCalc
         public Hand()
         {
             handList = new List<Card>();
+            highCard = null;
         }
         
 
@@ -129,5 +133,7 @@ namespace TexasHoldemCalc
             }
             return false;
         }
+
+        
     }
 }

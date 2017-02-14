@@ -20,6 +20,7 @@ namespace TexasHoldemCalc
         Deck deck;
         List<Player> currentPlayers;
         List<Card> communityCards;
+        List<Player> potWinners;
 
         // Properties
         public List<Player> CurrentPlayers { get { return currentPlayers; } }
@@ -36,6 +37,7 @@ namespace TexasHoldemCalc
             dealerPosition = 0;
             pot = 0;
             communityCards = new List<Card>();
+            potWinners = new List<Player>();
             betAmount = 0;
             // Create all the players at the table
             currentPlayers = new List<Player>();
@@ -117,6 +119,13 @@ namespace TexasHoldemCalc
         /// </summary>
         public void NewHand()
         {
+            foreach(Player p in currentPlayers)
+            {
+                p.Folded = false;
+                p.BestHand = null;
+                p.HoleCards.Clear();
+            }
+
             deck.Shuffle();
             pot = 0;
             betAmount = bigBlind;
@@ -220,12 +229,61 @@ namespace TexasHoldemCalc
                     }
                 }
             }
+
+            foreach(Player p in currentPlayers)
+            {
+                p.GetBestHand(new HandCombination(), communityCards);
+            }
+
+            Player bestPlayer = null; 
+            for(int i = 0; i < currentPlayers.Count(); i++)
+            {
+                // Find the first not folded player and assign them the best
+                if(!currentPlayers[i].Folded && bestPlayer == null)
+                {
+                    bestPlayer = currentPlayers[i];
+                    potWinners.Add(bestPlayer);
+                }
+                else
+                {
+                    // Checks to see if another hand has the best current hand beat or tied
+                    if(currentPlayers[i].BestHand.Combination > bestPlayer.BestHand.Combination)
+                    {
+                        bestPlayer = currentPlayers[i];
+                        potWinners.Clear();
+                        potWinners.Add(bestPlayer);
+                    }
+                    else if(currentPlayers[i].BestHand.Combination == bestPlayer.BestHand.Combination)
+                    {
+                        // Checks if there is a hand ranking tie for the best card
+                        for(int j = 0; j < bestPlayer.BestHand.HandList.Count; j++)
+                        {
+                            if(currentPlayers[i].BestHand.HandList[j].Value > bestPlayer.BestHand.HandList[j].Value)
+                            {
+                                bestPlayer = currentPlayers[i];
+                                break;
+                            }
+                            else if(j == bestPlayer.BestHand.HandList.Count - 1)
+                            {
+                                // If the hand is an absolute tie then make a split pot
+                                bestPlayer = currentPlayers[i];
+                                potWinners.Add(bestPlayer);                                
+                            }
+                            else if(currentPlayers[i].BestHand.HandList[j].Value < bestPlayer.BestHand.HandList[j].Value)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+            }
         }
 
         public void PlayersHand()
         {
             Console.WriteLine("Your Hand:");
-            foreach(Card c in currentPlayers[0].Hand)
+            foreach(Card c in currentPlayers[0].HoleCards)
             {
                 Console.Write(c.ValueToString() + " of " + c.SuitsToString() + " ");
             }

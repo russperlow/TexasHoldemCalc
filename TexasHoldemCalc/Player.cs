@@ -24,7 +24,8 @@ namespace TexasHoldemCalc
         int betIncrease;
         bool user;
         bool folded;
-        List<Card> hand;
+        List<Card> holeCards;
+        Hand bestHand;
         AIPlayer ai;
 
         // Properties
@@ -32,7 +33,8 @@ namespace TexasHoldemCalc
         public int PlayerNumber { get { return playerNumber; } }
         public int BetIncrease { get { return betIncrease; } set { betIncrease = value; } }
         public bool Folded { get { return folded; } set { folded = value; } }
-        public List<Card> Hand { get { return hand; } set { hand = value; } }
+        public List<Card> HoleCards { get { return holeCards; } set { holeCards = value; } }
+        public Hand BestHand { get { return bestHand; } set { bestHand = value; } }
 
         /// <summary>
         /// Constuctor
@@ -43,7 +45,7 @@ namespace TexasHoldemCalc
         {
             this.chips = chips;
             this.playerNumber = playerNumber;
-            hand = new List<Card>();
+            holeCards = new List<Card>();
             folded = false;
             betIncrease = 0;
 
@@ -80,8 +82,30 @@ namespace TexasHoldemCalc
                     case "CHECK":
                         return BettingOptions.Check;
                     case "CALL":
+                        chips -= betAmount;
                         return BettingOptions.Call;
                     case "RAISE":
+                        Console.WriteLine("How much would you like to raise by?");
+                        string input = Console.ReadLine();
+                        int raiseAmount;
+                        do
+                        {
+                            try
+                            {
+                                raiseAmount = Int32.Parse(input);
+                                if(raiseAmount > betAmount)
+                                {
+                                    betIncrease = raiseAmount - betAmount;
+                                    chips -= raiseAmount;
+                                    break;
+                                }
+                            }
+                            catch(Exception e)
+                            {
+                                Console.WriteLine(e);
+                            }
+
+                        } while (true);
                         return BettingOptions.Raise;
                     case "FOLD":
                         folded = true;
@@ -94,6 +118,20 @@ namespace TexasHoldemCalc
             {
                 return ai.Betting(betAmount);
             }
+        }
+
+        public void GetBestHand(HandCombination hc, List<Card> communityCards)
+        {
+            Hand temp = new Hand();
+
+            foreach(Card c in communityCards)
+            {
+                temp.HandList.Add(c);
+            }
+            temp.HandList.Add(holeCards[0]);
+            temp.HandList.Add(holeCards[1]);
+
+            bestHand = hc.GetStrongestHand(temp);
         }
     }
 }

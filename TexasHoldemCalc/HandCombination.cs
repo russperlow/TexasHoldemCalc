@@ -6,53 +6,66 @@ using System.Threading.Tasks;
 
 namespace TexasHoldemCalc
 {
+    enum HandCombinations
+    {
+        HighCard = 1,
+        Pair,
+        TwoPair,
+        ThreeOfAKind,
+        Straight,
+        Flush,
+        FullHouse,
+        FourOfAKind,
+        StraightFlush,
+        RoyalFlush
+    }
     /// <summary>
     /// Checks all possible hand combinations
     /// Works strongest to weakest
     /// </summary>
     class HandCombination
     {
-        public void GetStrongestHand(Hand hand)
+        public Hand GetStrongestHand(Hand hand)
         {
             if (IsRoyalFlush(hand))
             {
-
+                return GetRoyalFlushHand(hand);
             }
             else if (IsStraightFlush(hand))
             {
-
-            }
-            else if (IsFullHouse(hand))
-            {
-
+                return GetStraightFlushHand(hand);
             }
             else if (IsFourOfAKind(hand))
             {
-
+                return GetFourOfAKindHand(hand);
+            }
+            else if (IsFullHouse(hand))
+            {
+                return GetFullHouseHand(hand);
             }
             else if (IsFlush(hand))
             {
-
+                return GetFlushHand(hand);
             }
             else if (IsStraight(hand))
             {
-
+                return GetStraightHand(hand);
             }
             else if (IsThreeOfAKind(hand))
             {
-
+                return GetThreeOfAKindHand(hand);
             }
             else if (IsTwoPair(hand))
             {
-
+                return GetTwoPairHand(hand);
             }
             else if (IsPair(hand))
             {
-
+                return GetPairHand(hand);
             }
             else
             {
-
+                return GetHighCardHand(hand);
             }
         }
 
@@ -312,6 +325,7 @@ namespace TexasHoldemCalc
                     }
                 }
             }
+            hand.Combination = HandCombinations.RoyalFlush;
             return royalFlush;
         }
 
@@ -338,6 +352,7 @@ namespace TexasHoldemCalc
                     }
                 }
             }
+            hand.Combination = HandCombinations.StraightFlush;
             return straightFlush;
         }
 
@@ -367,6 +382,7 @@ namespace TexasHoldemCalc
                     break;
                 }
             }
+            hand.Combination = HandCombinations.FourOfAKind;
             return fourOfAKind;
         }
 
@@ -391,6 +407,7 @@ namespace TexasHoldemCalc
                     }
                 }
             }
+            hand.Combination = HandCombinations.FullHouse;
             return fullHouse;
         }
 
@@ -445,6 +462,7 @@ namespace TexasHoldemCalc
                     break;
                 }
             }
+            hand.Combination = HandCombinations.Flush;
             return flush;
         }
 
@@ -471,6 +489,7 @@ namespace TexasHoldemCalc
                     }
                 }
             }
+            hand.Combination = HandCombinations.Straight;
             return straight;
         }
 
@@ -500,6 +519,7 @@ namespace TexasHoldemCalc
                     break;
                 }
             }
+            hand.Combination = HandCombinations.ThreeOfAKind;
             return threeOfAKind;
         }
 
@@ -534,6 +554,7 @@ namespace TexasHoldemCalc
                 }
                 break;
             }
+            hand.Combination = HandCombinations.TwoPair;
             return twoPair;
         }
 
@@ -563,6 +584,7 @@ namespace TexasHoldemCalc
                 }
                 break;
             }
+            hand.Combination = HandCombinations.Pair;
             return pair;
         }
 
@@ -579,7 +601,7 @@ namespace TexasHoldemCalc
                     break;
                 }
             }
-
+            hand.Combination = HandCombinations.HighCard;
             return highCard;
         }
 

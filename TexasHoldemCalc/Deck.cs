@@ -98,12 +98,12 @@ namespace TexasHoldemCalc
                 {
                     if (dealerPosition + i != 0)
                     {
-                        table.CurrentPlayers[dealerPosition + i].Hand.Add(shuffledDeck.Dequeue());
+                        table.CurrentPlayers[dealerPosition + i].HoleCards.Add(shuffledDeck.Dequeue());
                     }
                     else
                     {
                         shuffledDeck.Peek().FaceUp = true;
-                        table.CurrentPlayers[0].Hand.Add(shuffledDeck.Dequeue());
+                        table.CurrentPlayers[0].HoleCards.Add(shuffledDeck.Dequeue());
                     }
                 }
                 else
@@ -118,11 +118,11 @@ namespace TexasHoldemCalc
                     if(temp == 0)
                     {
                         shuffledDeck.Peek().FaceUp = true;
-                        table.CurrentPlayers[0].Hand.Add(shuffledDeck.Dequeue());
+                        table.CurrentPlayers[0].HoleCards.Add(shuffledDeck.Dequeue());
                     }
                     else
                     {
-                        table.CurrentPlayers[temp].Hand.Add(shuffledDeck.Dequeue());
+                        table.CurrentPlayers[temp].HoleCards.Add(shuffledDeck.Dequeue());
                     }
                 }
             }
