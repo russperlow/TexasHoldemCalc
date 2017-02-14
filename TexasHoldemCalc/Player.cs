@@ -37,6 +37,7 @@ namespace TexasHoldemCalc
         public int PlayerNumber { get { return playerNumber; } }
         public int BetIncrease { get { return betIncrease; } set { betIncrease = value; } }
         public int RaiseAmount { get { return raiseAmount; } set { raiseAmount = value; } }
+        public bool User { get { return user; } }
         public bool Folded { get { return folded; } set { folded = value; } }
         public bool BigBlind { get { return bigBlind; } set { bigBlind = value; } }
         public bool SmallBlind { get { return smallBlind; } set { smallBlind = value; } }

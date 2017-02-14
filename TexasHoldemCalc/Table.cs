@@ -55,6 +55,8 @@ namespace TexasHoldemCalc
         /// </summary>
         public void GameLoop()
         {
+            Console.WriteLine("================================================== NEW HAND ==================================================");
+
             // Deal a new hand to begin the next round
             NewHand();
 
@@ -245,6 +247,10 @@ namespace TexasHoldemCalc
                     if (!currentPlayers[i].Folded)
                     {
                         currentPlayers[i].Chips += pot;
+                        if (currentPlayers[i].User)
+                            Console.WriteLine("You won $" + pot + "!");
+                        else
+                            Console.WriteLine("Player " + currentPlayers[i].PlayerNumber + " won " + " $" + pot);
                         break;
                     }
                 }
