@@ -22,29 +22,38 @@ namespace TexasHoldemCalc
         int chips;
         int playerNumber;
         int betIncrease;
+        int raiseAmount;
         bool user;
         bool folded;
+        bool bigBlind;
+        bool smallBlind;
         List<Card> holeCards;
         Hand bestHand;
         AIPlayer ai;
+        Table table;
 
         // Properties
         public int Chips { get { return chips; } set { chips = value; } }
         public int PlayerNumber { get { return playerNumber; } }
         public int BetIncrease { get { return betIncrease; } set { betIncrease = value; } }
+        public int RaiseAmount { get { return raiseAmount; } set { raiseAmount = value; } }
         public bool Folded { get { return folded; } set { folded = value; } }
+        public bool BigBlind { get { return bigBlind; } set { bigBlind = value; } }
+        public bool SmallBlind { get { return smallBlind; } set { smallBlind = value; } }
         public List<Card> HoleCards { get { return holeCards; } set { holeCards = value; } }
         public Hand BestHand { get { return bestHand; } set { bestHand = value; } }
+        public Table Table { get { return table; } }
 
         /// <summary>
         /// Constuctor
         /// </summary>
         /// <param name="chips">Starting Chips</param>
         /// <param name="playerNumber">Position Number</param>
-        public Player(int chips, int playerNumber)
+        public Player(int chips, int playerNumber, Table table)
         {
             this.chips = chips;
             this.playerNumber = playerNumber;
+            this.table = table;
             holeCards = new List<Card>();
             folded = false;
             betIncrease = 0;
@@ -56,14 +65,14 @@ namespace TexasHoldemCalc
             else
             {
                 user = false;
-                ai = new AIPlayer();
+                ai = new AIPlayer(this);
             }
         }
 
         /// <summary>
         /// Used to distinguish between AI & player. Allow player to bet
         /// </summary>
-        public BettingOptions Bet(int betAmount)
+        public BettingOptions Bet(int betAmount, int roundCount)
         {
             if (user)
             {
@@ -80,43 +89,65 @@ namespace TexasHoldemCalc
                 switch (userInput.ToUpper())
                 {
                     case "CHECK":
+                        Console.WriteLine("You Check");
                         return BettingOptions.Check;
                     case "CALL":
                         chips -= betAmount;
+                        Console.WriteLine("You Call " + betAmount);
                         return BettingOptions.Call;
                     case "RAISE":
                         Console.WriteLine("How much would you like to raise by?");
                         string input = Console.ReadLine();
-                        int raiseAmount;
                         do
                         {
                             try
                             {
                                 raiseAmount = Int32.Parse(input);
-                                if(raiseAmount > betAmount)
+                                if(raiseAmount > 0)
                                 {
                                     betIncrease = raiseAmount - betAmount;
                                     chips -= raiseAmount;
                                     break;
                                 }
                             }
-                            catch(Exception e)
+                            catch
                             {
-                                Console.WriteLine(e);
+                                Console.WriteLine("Invalid input try again!");
                             }
-
+                            Console.WriteLine("How much would you like to raise by?");
+                            input = Console.ReadLine();
                         } while (true);
+                        Console.WriteLine("You Raise to " + raiseAmount);
                         return BettingOptions.Raise;
                     case "FOLD":
                         folded = true;
+                        Console.WriteLine("You Fold");
                         return BettingOptions.Fold;
                     default:
-                        return Bet(betAmount);
+                        return Bet(betAmount, roundCount);
                 }
             }
             else
             {
-                return ai.Betting(betAmount);
+                BettingOptions bo = ai.Betting(betAmount, roundCount);
+
+                switch (bo)
+                {
+                    case BettingOptions.Fold:
+                        folded = true;
+                        break;
+                    case BettingOptions.Call:
+                        chips -= betAmount;
+                        break;
+                    case BettingOptions.Raise:
+                        betIncrease = raiseAmount - betAmount;
+                        chips -= raiseAmount;
+                        break;
+                    default:
+                        break;
+                }
+                Console.WriteLine("Player " + playerNumber + " " + bo.ToString() + "s");
+                return bo;
             }
         }
 

@@ -325,7 +325,7 @@ namespace TexasHoldemCalc
                     }
                 }
             }
-            hand.Combination = HandCombinations.RoyalFlush;
+            royalFlush.Combination = HandCombinations.RoyalFlush;
             return royalFlush;
         }
 
@@ -352,7 +352,7 @@ namespace TexasHoldemCalc
                     }
                 }
             }
-            hand.Combination = HandCombinations.StraightFlush;
+            straightFlush.Combination = HandCombinations.StraightFlush;
             return straightFlush;
         }
 
@@ -382,7 +382,7 @@ namespace TexasHoldemCalc
                     break;
                 }
             }
-            hand.Combination = HandCombinations.FourOfAKind;
+            fourOfAKind.Combination = HandCombinations.FourOfAKind;
             return fourOfAKind;
         }
 
@@ -407,7 +407,7 @@ namespace TexasHoldemCalc
                     }
                 }
             }
-            hand.Combination = HandCombinations.FullHouse;
+            fullHouse.Combination = HandCombinations.FullHouse;
             return fullHouse;
         }
 
@@ -462,7 +462,7 @@ namespace TexasHoldemCalc
                     break;
                 }
             }
-            hand.Combination = HandCombinations.Flush;
+            flush.Combination = HandCombinations.Flush;
             return flush;
         }
 
@@ -489,7 +489,7 @@ namespace TexasHoldemCalc
                     }
                 }
             }
-            hand.Combination = HandCombinations.Straight;
+            straight.Combination = HandCombinations.Straight;
             return straight;
         }
 
@@ -519,7 +519,7 @@ namespace TexasHoldemCalc
                     break;
                 }
             }
-            hand.Combination = HandCombinations.ThreeOfAKind;
+            threeOfAKind.Combination = HandCombinations.ThreeOfAKind;
             return threeOfAKind;
         }
 
@@ -554,7 +554,7 @@ namespace TexasHoldemCalc
                 }
                 break;
             }
-            hand.Combination = HandCombinations.TwoPair;
+            twoPair.Combination = HandCombinations.TwoPair;
             return twoPair;
         }
 
@@ -584,7 +584,7 @@ namespace TexasHoldemCalc
                 }
                 break;
             }
-            hand.Combination = HandCombinations.Pair;
+            pair.Combination = HandCombinations.Pair;
             return pair;
         }
 
@@ -601,7 +601,7 @@ namespace TexasHoldemCalc
                     break;
                 }
             }
-            hand.Combination = HandCombinations.HighCard;
+            highCard.Combination = HandCombinations.HighCard;
             return highCard;
         }
 

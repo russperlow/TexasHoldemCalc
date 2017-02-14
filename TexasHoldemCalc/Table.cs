@@ -25,6 +25,8 @@ namespace TexasHoldemCalc
         // Properties
         public List<Player> CurrentPlayers { get { return currentPlayers; } }
         public List<Card> CommunityCards { get { return communityCards; } set { communityCards = value; } }
+        public int BigBlind { get { return bigBlind; } }
+        public int Pot { get { return pot; } }
 
         // Gets the starting data for a game
         public Table(int playersCount, int smallBlind)
@@ -43,7 +45,7 @@ namespace TexasHoldemCalc
             currentPlayers = new List<Player>();
             for (int i = 0; i <= playersCount; i++)
             {
-                currentPlayers.Add(new Player(chipCount, i));
+                currentPlayers.Add(new Player(chipCount, i, this));
             }
         }
 
@@ -57,38 +59,50 @@ namespace TexasHoldemCalc
             NewHand();
 
             // First round of betting
-            Betting(dealerPosition + 3, true);
+            Betting(dealerPosition + 3, true, 1);
 
             int roundCount = 1;
             // Loops through the rounds making sure there is more than 1 player
             while(CheckRemainingPlayers() && roundCount <= 3)
             {
+                WriteOut();
                 switch (roundCount)
                 {
                     case 1:
                         // Deal Flop
                         deck.DealCommunityCards(3);
-                        // Second round of betting
-                        Betting(dealerPosition + 1, false);
                         break;
                     case 2:
                         // Deal Turn
                         deck.DealCommunityCards(1);
-                        // Third round of betting
-                        Betting(dealerPosition + 1, false);
                         break;
                     case 3:
                         // Deal River
                         deck.DealCommunityCards(1);
-                        // Final round of betting
-                        Betting(dealerPosition + 1, false);
                         break;
                 }
+                // Handle each round of betting
+                Betting(dealerPosition + 1, false, roundCount);
+                roundCount++;
             }
             // Decide the winner
             DecideWinner();
             // Restart the loop if more than one player remains
             GameLoop();
+        }
+
+        public void WriteOut()
+        {
+            Console.Clear();
+            Console.WriteLine("Community Cards: ");
+            foreach (Card c in communityCards)
+            {
+                Console.Write(c.ValueToString() + " of " + c.SuitsToString() + " ");
+            }
+            Console.Write("\n");
+
+            Console.WriteLine("Pot: " + pot);
+            PlayersHand();
         }
 
         /// <summary>
@@ -127,23 +141,29 @@ namespace TexasHoldemCalc
             }
 
             deck.Shuffle();
-            pot = 0;
+            pot = smallBlind + bigBlind;
             betAmount = bigBlind;
             // Take the blinds of players
             if(dealerPosition == playersCount-2)
             {
                 currentPlayers[dealerPosition+1].Chips -= smallBlind;
-                currentPlayers[dealerPosition+2].Chips -= bigBlind;
+                currentPlayers[0].Chips -= bigBlind;
+                currentPlayers[dealerPosition + 1].SmallBlind = true;
+                currentPlayers[0].BigBlind = true;
             }
             else if(dealerPosition == playersCount-1)
             {
                 currentPlayers[0].Chips -= smallBlind;
                 currentPlayers[1].Chips -= bigBlind;
+                currentPlayers[0].SmallBlind = true;
+                currentPlayers[1].BigBlind = true;
             }
             else
             {
                 currentPlayers[dealerPosition + 1].Chips -= smallBlind;
                 currentPlayers[dealerPosition + 2].Chips -= bigBlind;
+                currentPlayers[dealerPosition + 1].SmallBlind = true;
+                currentPlayers[dealerPosition + 2].BigBlind = true;
             }
 
             deck.Deal(dealerPosition, playersCount);
@@ -153,26 +173,26 @@ namespace TexasHoldemCalc
         /// <summary>
         /// Called for every round of betting
         /// </summary>
-        public void Betting(int pos, bool start)
+        public void Betting(int pos, bool start, int round)
         {
             int startPos = pos;
             BettingOptions bettingOptions;
 
             // Checks to see if it is the start of a betting round
-            // Usd to make sure the BB gets a turn
+            // Used to make sure the BB gets a turn
             if (start)
             {
                 if(startPos >= currentPlayers.Count())
                 {
                     startPos -= currentPlayers.Count();
                 }
-                bettingOptions = currentPlayers[startPos].Bet(betAmount);
+                bettingOptions = currentPlayers[startPos].Bet(betAmount, round);
                 if(bettingOptions == BettingOptions.Raise)
                 {
                     betAmount += currentPlayers[startPos].BetIncrease;
                     pot += betAmount;
                 }
-                else
+                else if(!currentPlayers[startPos].Folded)
                 {
                     pot += betAmount;
                 }
@@ -191,13 +211,13 @@ namespace TexasHoldemCalc
                 // If a player didn't fold then go through the betting process with them
                 if (!currentPlayers[temp].Folded)
                 {
-                    bettingOptions = currentPlayers[temp].Bet(betAmount);
+                    bettingOptions = currentPlayers[temp].Bet(betAmount, round);
 
                     if (bettingOptions == BettingOptions.Raise)
                     {
                         betAmount += currentPlayers[startPos].BetIncrease;
                         pot += betAmount;
-                        Betting(temp, false);
+                        Betting(temp, false, round);
                         break;
                     }
                     else if(bettingOptions == BettingOptions.Call)
@@ -244,7 +264,7 @@ namespace TexasHoldemCalc
                     bestPlayer = currentPlayers[i];
                     potWinners.Add(bestPlayer);
                 }
-                else
+                else if(!currentPlayers[i].Folded)
                 {
                     // Checks to see if another hand has the best current hand beat or tied
                     if(currentPlayers[i].BestHand.Combination > bestPlayer.BestHand.Combination)
