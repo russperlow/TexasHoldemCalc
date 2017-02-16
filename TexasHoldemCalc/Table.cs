@@ -94,12 +94,12 @@ namespace TexasHoldemCalc
             if (currentPlayers.Count() > 1)
             {
                 communityCards.Clear();
-                GameLoop();
                 dealerPosition++;
                 if(dealerPosition == currentPlayers.Count)
                 {
                     dealerPosition = 0;
                 }
+                GameLoop();
             }
         }
 
@@ -182,7 +182,7 @@ namespace TexasHoldemCalc
         /// </summary>
         /// <param name="bb">Big Blind Pos</param>
         /// <param name="sb">Small Blind Pos</param>
-        public void TakeBlinds(int bb, int sb)
+        public void TakeBlinds(int sb, int bb)
         {
             if(currentPlayers[bb].Chips >= bigBlind)
             {
@@ -305,7 +305,7 @@ namespace TexasHoldemCalc
         {
             if (!CheckRemainingPlayers())
             {
-                for(int i = 0; i < currentPlayers.Count(); i++)
+                for (int i = 0; i < currentPlayers.Count(); i++)
                 {
                     if (!currentPlayers[i].Folded)
                     {
@@ -318,54 +318,76 @@ namespace TexasHoldemCalc
                     }
                 }
             }
-
-            foreach(Player p in currentPlayers)
+            else
             {
-                p.GetBestHand(new HandCombination(), communityCards);
-            }
-
-            Player bestPlayer = null; 
-            for(int i = 0; i < currentPlayers.Count(); i++)
-            {
-                // Find the first not folded player and assign them the best
-                if(!currentPlayers[i].Folded && bestPlayer == null)
+                foreach (Player p in currentPlayers)
                 {
-                    bestPlayer = currentPlayers[i];
-                    potWinners.Add(bestPlayer);
+                    p.GetBestHand(new HandCombination(), communityCards);
                 }
-                else if(!currentPlayers[i].Folded)
+
+                Player bestPlayer = null;
+                for (int i = 0; i < currentPlayers.Count(); i++)
                 {
-                    // Checks to see if another hand has the best current hand beat or tied
-                    if(currentPlayers[i].BestHand.Combination > bestPlayer.BestHand.Combination)
+                    // Find the first not folded player and assign them the best
+                    if (!currentPlayers[i].Folded && bestPlayer == null)
                     {
                         bestPlayer = currentPlayers[i];
-                        potWinners.Clear();
                         potWinners.Add(bestPlayer);
                     }
-                    else if(currentPlayers[i].BestHand.Combination == bestPlayer.BestHand.Combination)
+                    else if (!currentPlayers[i].Folded)
                     {
-                        // Checks if there is a hand ranking tie for the best card
-                        for(int j = 0; j < bestPlayer.BestHand.HandList.Count; j++)
+                        // Checks to see if another hand has the best current hand beat or tied
+                        if (currentPlayers[i].BestHand.Combination > bestPlayer.BestHand.Combination)
                         {
-                            if(currentPlayers[i].BestHand.HandList[j].Value > bestPlayer.BestHand.HandList[j].Value)
+                            bestPlayer = currentPlayers[i];
+                            potWinners.Clear();
+                            potWinners.Add(bestPlayer);
+                        }
+                        else if (currentPlayers[i].BestHand.Combination == bestPlayer.BestHand.Combination)
+                        {
+                            // Checks if there is a hand ranking tie for the best card
+                            for (int j = 0; j < bestPlayer.BestHand.HandList.Count; j++)
                             {
-                                bestPlayer = currentPlayers[i];
-                                break;
-                            }
-                            else if(j == bestPlayer.BestHand.HandList.Count - 1)
-                            {
-                                // If the hand is an absolute tie then make a split pot
-                                bestPlayer = currentPlayers[i];
-                                potWinners.Add(bestPlayer);                                
-                            }
-                            else if(currentPlayers[i].BestHand.HandList[j].Value < bestPlayer.BestHand.HandList[j].Value)
-                            {
-                                break;
+                                if (currentPlayers[i].BestHand.HandList[j].Value > bestPlayer.BestHand.HandList[j].Value)
+                                {
+                                    bestPlayer = currentPlayers[i];
+                                    break;
+                                }
+                                else if (j == bestPlayer.BestHand.HandList.Count - 1)
+                                {
+                                    // If the hand is an absolute tie then make a split pot
+                                    bestPlayer = currentPlayers[i];
+                                    potWinners.Add(bestPlayer);
+                                }
+                                else if (currentPlayers[i].BestHand.HandList[j].Value < bestPlayer.BestHand.HandList[j].Value)
+                                {
+                                    break;
+                                }
                             }
                         }
                     }
                 }
 
+                // Give the winner(s) their money
+                if(potWinners.Count > 1)
+                {
+                    foreach(Player p in potWinners)
+                    {
+                        if(p.User)
+                            Console.WriteLine("You " + " win " + pot / potWinners.Count + " in a split pot!");
+                        else
+                            Console.WriteLine("Player " + p.PlayerNumber + " wins " + pot / potWinners.Count + " in a split pot!");
+                        p.Chips += pot / potWinners.Count;
+                    }
+                }
+                else
+                {
+                    if (bestPlayer.User)
+                        Console.WriteLine("You win $" + pot + " !");
+                    else
+                        Console.WriteLine("Player " + bestPlayer.PlayerNumber + " wins $" + pot + "!");
+                    bestPlayer.Chips += pot;
+                }
             }
         }
 

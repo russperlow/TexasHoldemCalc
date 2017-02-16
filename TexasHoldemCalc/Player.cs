@@ -182,14 +182,14 @@ namespace TexasHoldemCalc
                             betIncrease = raiseAmount - betAmount;
                             chips -= chips;
                             allIn = true;
+                            Console.WriteLine("Player " + playerNumber + " moves all in! With " + allInMaxBet);
                         }
                         else
                         {
                             betIncrease = raiseAmount - betAmount;
                             chips -= raiseAmount;
+                            Console.WriteLine("Player " + playerNumber + " raises to " + betAmount);
                         }
-                        chips -= betAmount;
-                        Console.WriteLine("Player " + playerNumber + " calls " + betAmount);
                         break;
                     default:
                         Console.WriteLine("Player " + playerNumber + " checks!");
