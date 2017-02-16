@@ -149,12 +149,9 @@ namespace TexasHoldemCalc
             foreach(Player p in currentPlayers)
             {
                 p.Folded = false;
-<<<<<<< HEAD
                 p.AllIn = false;
-=======
                 p.BigBlind = false;
                 p.SmallBlind = false;
->>>>>>> 3e75d25051fc481c4219ad9741c646bd6d25032c
                 p.BestHand = null;
                 p.HoleCards.Clear();
             }
@@ -253,40 +250,37 @@ namespace TexasHoldemCalc
                 {
                     temp -= currentPlayers.Count();
                 }
-<<<<<<< HEAD
 
                 // If a player didn't fold or go all in then go through the betting process with them
                 if (!currentPlayers[temp].Folded && !currentPlayers[temp].AllIn)
-=======
-                
-                // If a player didn't fold then go through the betting process with them
-                if (!currentPlayers[temp].Folded)
->>>>>>> 3e75d25051fc481c4219ad9741c646bd6d25032c
                 {
-                    if(currentPlayers[temp].BigBlind && round == 1 && betAmount == bigBlind)
-                        bettingOptions = currentPlayers[temp].Bet(0, round);
-                    else if(currentPlayers[temp].SmallBlind && round == 1 && betAmount == bigBlind)
-                        bettingOptions = currentPlayers[temp].Bet(bigBlind/2, round);
-                    else
-                        bettingOptions = currentPlayers[temp].Bet(betAmount, round);
+                    // If a player didn't fold then go through the betting process with them
+                    if (!currentPlayers[temp].Folded)
+                    {
+                        if (currentPlayers[temp].BigBlind && round == 1 && betAmount == bigBlind)
+                            bettingOptions = currentPlayers[temp].Bet(0, round);
+                        else if (currentPlayers[temp].SmallBlind && round == 1 && betAmount == bigBlind)
+                            bettingOptions = currentPlayers[temp].Bet(bigBlind / 2, round);
+                        else
+                            bettingOptions = currentPlayers[temp].Bet(betAmount, round);
 
-                    if (bettingOptions == BettingOptions.Raise)
-                    {
-                        betAmount += currentPlayers[temp].BetIncrease;
-                        pot += betAmount;
-                        Betting(temp, false, round);
-                        break;
-                    }
-                    else if(bettingOptions == BettingOptions.Call)
-                    {
-                        pot += betAmount;
-                    }
-                    else if(bettingOptions == BettingOptions.Fold)
-                    {
-                        currentPlayers[temp].Folded = true;
+                        if (bettingOptions == BettingOptions.Raise)
+                        {
+                            betAmount += currentPlayers[temp].BetIncrease;
+                            pot += betAmount;
+                            Betting(temp, false, round);
+                            break;
+                        }
+                        else if (bettingOptions == BettingOptions.Call)
+                        {
+                            pot += betAmount;
+                        }
+                        else if (bettingOptions == BettingOptions.Fold)
+                        {
+                            currentPlayers[temp].Folded = true;
+                        }
                     }
                 }
-
                 // If one player remains, break
                 if (!CheckRemainingPlayers())
                 {

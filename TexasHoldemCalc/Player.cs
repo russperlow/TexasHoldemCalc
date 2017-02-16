@@ -166,7 +166,6 @@ namespace TexasHoldemCalc
                         Console.WriteLine("Player " + playerNumber + " folds!");
                         break;
                     case BettingOptions.Call:
-<<<<<<< HEAD
                         if (betAmount >= chips)
                         {
                             allInMaxBet = chips;
@@ -189,16 +188,8 @@ namespace TexasHoldemCalc
                             betIncrease = raiseAmount - betAmount;
                             chips -= raiseAmount;
                         }
-=======
                         chips -= betAmount;
                         Console.WriteLine("Player " + playerNumber + " calls " + betAmount);
-                        break;
-                    case BettingOptions.Raise:
-                        betIncrease = raiseAmount - betAmount;
-                        chips -= raiseAmount;
-                        betAmount = raiseAmount;
-                        Console.WriteLine("Player " + playerNumber + " raises to " + raiseAmount);
->>>>>>> 3e75d25051fc481c4219ad9741c646bd6d25032c
                         break;
                     default:
                         Console.WriteLine("Player " + playerNumber + " checks!");
