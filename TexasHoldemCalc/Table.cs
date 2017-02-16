@@ -138,38 +138,66 @@ namespace TexasHoldemCalc
             foreach(Player p in currentPlayers)
             {
                 p.Folded = false;
+                p.AllIn = false;
                 p.BestHand = null;
                 p.HoleCards.Clear();
             }
 
             deck.Shuffle();
-            pot = smallBlind + bigBlind;
             betAmount = bigBlind;
+
             // Take the blinds of players
             if(dealerPosition == playersCount-2)
             {
-                currentPlayers[dealerPosition+1].Chips -= smallBlind;
-                currentPlayers[0].Chips -= bigBlind;
-                currentPlayers[dealerPosition + 1].SmallBlind = true;
-                currentPlayers[0].BigBlind = true;
+                TakeBlinds(0, dealerPosition + 1);
             }
             else if(dealerPosition == playersCount-1)
             {
-                currentPlayers[0].Chips -= smallBlind;
-                currentPlayers[1].Chips -= bigBlind;
-                currentPlayers[0].SmallBlind = true;
-                currentPlayers[1].BigBlind = true;
+                TakeBlinds(0, 1);
             }
             else
             {
-                currentPlayers[dealerPosition + 1].Chips -= smallBlind;
-                currentPlayers[dealerPosition + 2].Chips -= bigBlind;
-                currentPlayers[dealerPosition + 1].SmallBlind = true;
-                currentPlayers[dealerPosition + 2].BigBlind = true;
+                TakeBlinds(dealerPosition + 1, dealerPosition + 2);
             }
 
             deck.Deal(dealerPosition, playersCount);
             PlayersHand();
+        }
+
+        /// <summary>
+        /// Takes the blinds checking to make sure they can be afforded
+        /// </summary>
+        /// <param name="bb">Big Blind Pos</param>
+        /// <param name="sb">Small Blind Pos</param>
+        public void TakeBlinds(int bb, int sb)
+        {
+            if(currentPlayers[bb].Chips >= bigBlind)
+            {
+                currentPlayers[bb].Chips -= bigBlind;
+                currentPlayers[bb].BigBlind = true;
+                pot += bigBlind;
+            }
+            else
+            {
+                pot += currentPlayers[bb].Chips;
+                currentPlayers[bb].Chips = 0;
+                currentPlayers[bb].AllIn = true;
+                currentPlayers[bb].BigBlind = true;
+            }
+
+            if (currentPlayers[sb].Chips >= smallBlind)
+            {
+                currentPlayers[sb].Chips -= smallBlind;
+                currentPlayers[sb].SmallBlind = true;
+                pot += smallBlind;
+            }
+            else
+            {
+                pot += currentPlayers[sb].Chips;
+                currentPlayers[sb].Chips = 0;
+                currentPlayers[sb].AllIn = true;
+                currentPlayers[sb].SmallBlind = true;
+            }
         }
 
         /// <summary>
@@ -210,8 +238,8 @@ namespace TexasHoldemCalc
                     temp -= currentPlayers.Count();
                 }
 
-                // If a player didn't fold then go through the betting process with them
-                if (!currentPlayers[temp].Folded)
+                // If a player didn't fold or go all in then go through the betting process with them
+                if (!currentPlayers[temp].Folded && !currentPlayers[temp].AllIn)
                 {
                     bettingOptions = currentPlayers[temp].Bet(betAmount, round);
 

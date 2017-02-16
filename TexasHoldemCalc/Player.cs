@@ -11,7 +11,7 @@ namespace TexasHoldemCalc
         Check,
         Call,
         Raise,
-        Fold
+        Fold,
     }
     /// <summary>
     /// Player class for the user
@@ -23,10 +23,13 @@ namespace TexasHoldemCalc
         int playerNumber;
         int betIncrease;
         int raiseAmount;
+        int allInMaxBet;
+        int allInMaxPot;
         bool user;
         bool folded;
         bool bigBlind;
         bool smallBlind;
+        bool allIn;
         List<Card> holeCards;
         Hand bestHand;
         AIPlayer ai;
@@ -37,10 +40,13 @@ namespace TexasHoldemCalc
         public int PlayerNumber { get { return playerNumber; } }
         public int BetIncrease { get { return betIncrease; } set { betIncrease = value; } }
         public int RaiseAmount { get { return raiseAmount; } set { raiseAmount = value; } }
+        public int AllInMaxBet { get { return allInMaxBet; } }
+        public int AllInMaxPot { get { return allInMaxPot; } set { allInMaxPot = value; } }
         public bool User { get { return user; } }
         public bool Folded { get { return folded; } set { folded = value; } }
         public bool BigBlind { get { return bigBlind; } set { bigBlind = value; } }
         public bool SmallBlind { get { return smallBlind; } set { smallBlind = value; } }
+        public bool AllIn { get { return allIn; } set { allIn = value; } }
         public List<Card> HoleCards { get { return holeCards; } set { holeCards = value; } }
         public Hand BestHand { get { return bestHand; } set { bestHand = value; } }
         public Table Table { get { return table; } }
@@ -93,8 +99,18 @@ namespace TexasHoldemCalc
                         Console.WriteLine("You Check");
                         return BettingOptions.Check;
                     case "CALL":
-                        chips -= betAmount;
-                        Console.WriteLine("You Call " + betAmount);
+                        if (betAmount >= chips)
+                        {
+                            allInMaxBet = chips;
+                            chips -= chips;
+                            allIn = true;
+                            Console.WriteLine("You call and put yourself all in!");
+                        }
+                        else
+                        {
+                            chips -= betAmount;
+                            Console.WriteLine("You Call " + betAmount);
+                        }
                         return BettingOptions.Call;
                     case "RAISE":
                         Console.WriteLine("How much would you like to raise by?");
@@ -106,8 +122,20 @@ namespace TexasHoldemCalc
                                 raiseAmount = Int32.Parse(input);
                                 if(raiseAmount > 0)
                                 {
-                                    betIncrease = raiseAmount - betAmount;
-                                    chips -= raiseAmount;
+                                    if (chips <= raiseAmount)
+                                    {
+                                        Console.WriteLine("You go all in!");
+                                        allInMaxBet = chips;
+                                        chips -= chips;
+                                        betIncrease = raiseAmount - betAmount;
+                                        allIn = true;
+                                    }
+                                    else
+                                    {
+                                        betIncrease = raiseAmount - betAmount;
+                                        chips -= raiseAmount;
+                                        Console.WriteLine("You Raise to " + raiseAmount);
+                                    }
                                     break;
                                 }
                             }
@@ -118,7 +146,6 @@ namespace TexasHoldemCalc
                             Console.WriteLine("How much would you like to raise by?");
                             input = Console.ReadLine();
                         } while (true);
-                        Console.WriteLine("You Raise to " + raiseAmount);
                         return BettingOptions.Raise;
                     case "FOLD":
                         folded = true;
@@ -138,11 +165,28 @@ namespace TexasHoldemCalc
                         folded = true;
                         break;
                     case BettingOptions.Call:
-                        chips -= betAmount;
+                        if (betAmount >= chips)
+                        {
+                            allInMaxBet = chips;
+                            chips -= chips;
+                            allIn = true;
+                        }
+                        else
+                            chips -= betAmount;
                         break;
                     case BettingOptions.Raise:
-                        betIncrease = raiseAmount - betAmount;
-                        chips -= raiseAmount;
+                        if (raiseAmount >= chips)
+                        {
+                            allInMaxBet = chips;
+                            betIncrease = raiseAmount - betAmount;
+                            chips -= chips;
+                            allIn = true;
+                        }
+                        else
+                        {
+                            betIncrease = raiseAmount - betAmount;
+                            chips -= raiseAmount;
+                        }
                         break;
                     default:
                         break;
