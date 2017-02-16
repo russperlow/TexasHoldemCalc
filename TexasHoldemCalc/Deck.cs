@@ -134,6 +134,8 @@ namespace TexasHoldemCalc
         /// <param name="cardsToDeal">The number of cards to deal</param>
         public void DealCommunityCards(int cardsToDeal)
         {
+            // Burn a card
+            shuffledDeck.Dequeue();
             for (int i = 0; i < cardsToDeal; i++)
             {
                 shuffledDeck.Peek().FaceUp = true;

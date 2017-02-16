@@ -542,7 +542,7 @@ namespace TexasHoldemCalc
 
                             for(int k = 0; k < hand.HandList.Count; k++)
                             {
-                                if(hand.HandList[k].Value != twoPair.HandList[i].Value && hand.HandList[k].Value != twoPair.HandList[j].Value)
+                                if(hand.HandList[k].Value != twoPair.HandList[0].Value && hand.HandList[k].Value != twoPair.HandList[2].Value)
                                 {
                                     twoPair.HandList.Add(hand.HandList[k]);
                                     break;
