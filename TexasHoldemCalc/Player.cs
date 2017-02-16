@@ -143,7 +143,7 @@ namespace TexasHoldemCalc
                             {
                                 Console.WriteLine("Invalid input try again!");
                             }
-                            Console.WriteLine("How much would you like to raise by?");
+                            Console.WriteLine("How much would you like to raise to?");
                             input = Console.ReadLine();
                         } while (true);
                         return BettingOptions.Raise;
@@ -163,8 +163,10 @@ namespace TexasHoldemCalc
                 {
                     case BettingOptions.Fold:
                         folded = true;
+                        Console.WriteLine("Player " + playerNumber + " folds!");
                         break;
                     case BettingOptions.Call:
+<<<<<<< HEAD
                         if (betAmount >= chips)
                         {
                             allInMaxBet = chips;
@@ -187,11 +189,21 @@ namespace TexasHoldemCalc
                             betIncrease = raiseAmount - betAmount;
                             chips -= raiseAmount;
                         }
+=======
+                        chips -= betAmount;
+                        Console.WriteLine("Player " + playerNumber + " calls " + betAmount);
+                        break;
+                    case BettingOptions.Raise:
+                        betIncrease = raiseAmount - betAmount;
+                        chips -= raiseAmount;
+                        betAmount = raiseAmount;
+                        Console.WriteLine("Player " + playerNumber + " raises to " + raiseAmount);
+>>>>>>> 3e75d25051fc481c4219ad9741c646bd6d25032c
                         break;
                     default:
+                        Console.WriteLine("Player " + playerNumber + " checks!");
                         break;
                 }
-                Console.WriteLine("Player " + playerNumber + " " + bo.ToString() + "s");
                 return bo;
             }
         }

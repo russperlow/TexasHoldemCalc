@@ -67,7 +67,6 @@ namespace TexasHoldemCalc
             // Loops through the rounds making sure there is more than 1 player
             while(CheckRemainingPlayers() && roundCount <= 3)
             {
-                WriteOut();
                 switch (roundCount)
                 {
                     case 1:
@@ -83,18 +82,30 @@ namespace TexasHoldemCalc
                         deck.DealCommunityCards(1);
                         break;
                 }
+                WriteOut();
                 // Handle each round of betting
                 Betting(dealerPosition + 1, false, roundCount);
                 roundCount++;
             }
             // Decide the winner
             DecideWinner();
+
             // Restart the loop if more than one player remains
-            GameLoop();
+            if (currentPlayers.Count() > 1)
+            {
+                communityCards.Clear();
+                GameLoop();
+                dealerPosition++;
+                if(dealerPosition == currentPlayers.Count)
+                {
+                    dealerPosition = 0;
+                }
+            }
         }
 
         public void WriteOut()
         {
+            System.Threading.Thread.Sleep(1000);
             Console.Clear();
             Console.WriteLine("Community Cards: ");
             foreach (Card c in communityCards)
@@ -138,7 +149,12 @@ namespace TexasHoldemCalc
             foreach(Player p in currentPlayers)
             {
                 p.Folded = false;
+<<<<<<< HEAD
                 p.AllIn = false;
+=======
+                p.BigBlind = false;
+                p.SmallBlind = false;
+>>>>>>> 3e75d25051fc481c4219ad9741c646bd6d25032c
                 p.BestHand = null;
                 p.HoleCards.Clear();
             }
@@ -237,15 +253,26 @@ namespace TexasHoldemCalc
                 {
                     temp -= currentPlayers.Count();
                 }
+<<<<<<< HEAD
 
                 // If a player didn't fold or go all in then go through the betting process with them
                 if (!currentPlayers[temp].Folded && !currentPlayers[temp].AllIn)
+=======
+                
+                // If a player didn't fold then go through the betting process with them
+                if (!currentPlayers[temp].Folded)
+>>>>>>> 3e75d25051fc481c4219ad9741c646bd6d25032c
                 {
-                    bettingOptions = currentPlayers[temp].Bet(betAmount, round);
+                    if(currentPlayers[temp].BigBlind && round == 1 && betAmount == bigBlind)
+                        bettingOptions = currentPlayers[temp].Bet(0, round);
+                    else if(currentPlayers[temp].SmallBlind && round == 1 && betAmount == bigBlind)
+                        bettingOptions = currentPlayers[temp].Bet(bigBlind/2, round);
+                    else
+                        bettingOptions = currentPlayers[temp].Bet(betAmount, round);
 
                     if (bettingOptions == BettingOptions.Raise)
                     {
-                        betAmount += currentPlayers[startPos].BetIncrease;
+                        betAmount += currentPlayers[temp].BetIncrease;
                         pot += betAmount;
                         Betting(temp, false, round);
                         break;
@@ -259,6 +286,20 @@ namespace TexasHoldemCalc
                         currentPlayers[temp].Folded = true;
                     }
                 }
+
+                // If one player remains, break
+                if (!CheckRemainingPlayers())
+                {
+                    break;
+                }
+            }
+
+            // After this round ends reset the bet amount
+            foreach(Player p in currentPlayers)
+            {
+                p.RaiseAmount = 0;
+                p.BetIncrease = 0;
+                betAmount = 0;
             }
         }
 

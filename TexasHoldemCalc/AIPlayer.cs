@@ -16,204 +16,225 @@ namespace TexasHoldemCalc
         Random rand;
         double strength;
         int bluffFreq;
-        int betAmount;
-        bool pair;
-
+        double betAmount;
+        int simCount;
+        int decisionNum;
+        double rateOfReturn, potOdds, averageOdds;
+        bool pairBool;
+        List<Card> fullDeck;
+        Queue<Card> simDeck;
+        List<Card> tempDeck;
+        List<Card> knownCards;
+        HandCombination hc;
+        
         public AIPlayer(Player player)
         {
             this.player = player;
             strength = 0;
-            pair = false;
+            pairBool = false;
             rand = new Random();
             bluffFreq = rand.Next(100, 200);
+
+            fullDeck = new List<Card>();
+            simDeck = new Queue<Card>();
+            tempDeck = new List<Card>();
+            hc = new HandCombination();
+            knownCards = new List<Card>();
+
+            // Creates the deck in NDO
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 2; j <= 14; j++)
+                {
+                    fullDeck.Add(new Card((Suits)i, (Values)j));
+                }
+            }
+            
         }
 
         public BettingOptions Betting(int betAmount, int roundCount)
         {
             Thread.Sleep(rand.Next(6000));            
             this.betAmount = betAmount;
-            switch (roundCount)
+            strength = 0;
+
+            // Create a list of all known cards by the player
+            knownCards.Clear();
+            knownCards.Add(player.HoleCards[0]);
+            knownCards.Add(player.HoleCards[1]);
+            foreach(Card c in player.Table.CommunityCards)
             {
-                case 1:
-                    strength = 0;
-                    pair = false;
-                    return PreFlop();
-                case 2:
-                    break;
-                case 3:
-                    break;
-                case 4:
-                    break;
+                knownCards.Add(c);
             }
 
-            return BettingOptions.Fold;
+            return GetOdds();
         }
 
-
-        public void BestPossibleHand(List<Card> hand)
+        public BettingOptions GetOdds()
         {
-           
-        }
+            simCount = 0;
 
-        /// <summary>
-        /// Determines the strength of a hand based off the players hole cards
-        /// </summary>
-        /// <returns>The strength as a double</returns>
-        public BettingOptions PreFlop()
-        {
-            // Get basic card values
-            foreach(Card c in player.HoleCards)
+            while(simCount < 1000)
             {
-                
-                switch (c.Value)
+                switch (hc.GetStrongestHand(ShuffleSimulationDeck(knownCards)).Combination)
                 {
-                    case Values.Ace:
-                        strength += 10;
+                    case HandCombinations.RoyalFlush:
+                        averageOdds += 1;
                         break;
-                    case Values.King:
-                        strength += 8;
+                    case HandCombinations.StraightFlush:
+                        averageOdds += .9;
                         break;
-                    case Values.Queen:
-                        strength += 7;
+                    case HandCombinations.FourOfAKind:
+                        averageOdds += .8;
                         break;
-                    case Values.Jack:
-                        strength += 6;
+                    case HandCombinations.FullHouse:
+                        averageOdds += .7;
+                        break;
+                    case HandCombinations.Flush:
+                        averageOdds += .6;
+                        break;
+                    case HandCombinations.Straight:
+                        averageOdds += .5;
+                        break;
+                    case HandCombinations.ThreeOfAKind:
+                        averageOdds += .4;
+                        break;
+                    case HandCombinations.TwoPair:
+                        averageOdds += .3;
+                        break;
+                    case HandCombinations.Pair:
+                        averageOdds += .2;
                         break;
                     default:
-                        strength += (double)c.Value / 2;
+                        averageOdds += .1;
                         break;
                 }
+                simCount++;
             }
 
-            // Check to see if they are a pair or suited and give it a bonus
-            if (player.HoleCards[0].Value == player.HoleCards[1].Value)
-            {
-                strength *= 2;
-                pair = true;
-                // Set a minimum for pairs since 3 and 2 would be below a strength of 5
-                if(strength < 5)
-                {
-                    strength = 5;
-                }
-            }
-            else if (player.HoleCards[0].Suit == player.HoleCards[1].Suit)
-            {
-                strength += 2;
-            }
+            // Calculate rate of return
+            averageOdds /= 1000;
+            potOdds = betAmount / (betAmount + player.Table.Pot);
+            if(potOdds > 0) // DONT DIVIDE BY 0
+                rateOfReturn = averageOdds / potOdds;
 
-            // Subtract/Add for the gap between the cards from the strength
-            if(player.HoleCards[0].Value == player.HoleCards[1].Value + 1 || player.HoleCards[0].Value == player.HoleCards[1].Value - 1)
-            {
-                if(player.HoleCards[0].Value > Values.Jack || player.HoleCards[1].Value > Values.Jack)
-                {
-                    strength += 2;
-                }
-                else
-                {
-                    strength += 1;
-                }
-            }
-            else if (player.HoleCards[0].Value == player.HoleCards[1].Value + 2 || player.HoleCards[0].Value == player.HoleCards[1].Value - 2)
-            {
-                if (player.HoleCards[0].Value > Values.Jack || player.HoleCards[1].Value > Values.Jack)
-                {
-                    strength += 1;
-                }
-                else
-                {
-                    strength += .5;
-                }
-            }
-            else if(player.HoleCards[0].Value > player.HoleCards[1].Value)
-            {
-                strength -= player.HoleCards[0].Value - player.HoleCards[1].Value + 2;
-            }
-            else
-            {
-                strength -= player.HoleCards[1].Value - player.HoleCards[0].Value + 2;
-            }
+            // Used to make decisions of betting/calling/folding
+            decisionNum = rand.Next(100);
 
-            if (pair)
+            // Based off the rate of return they player makes their mvoe
+            if(rateOfReturn < .8)
             {
-                if (strength >= 14)
+                if(decisionNum < 95)
                 {
-                    return BettingOptions.Call;
-                }
-                else
-                {
-                    // Chances of a bluff
-                    int bluffOdd = rand.Next(0, bluffFreq);
-                    if (bluffFreq == 0)
-                    {
-                        player.RaiseAmount = BetAmount();
-                        return BettingOptions.Raise;
-                    }
-                    else if (bluffOdd == bluffFreq - 1)
-                    {
-                        return BettingOptions.Call;
-                    }
-
-                    int temp;
-                    temp = (int)(strength - (player.BetIncrease / player.Table.BigBlind) + rand.Next(0, (int)(strength)));
-
-                    if (temp >= 14)
-                    {
-                        return BettingOptions.Call;
-                    }
-                    else
-                    {
-                        if (player.BigBlind && betAmount - player.Table.BigBlind == 0)
-                            return BettingOptions.Check;
-                        return BettingOptions.Fold;
-                    }
-
-                }
-            }
-            else
-            {
-
-                if(strength >= 14)
-                {
-                    return BettingOptions.Call;
-                }
-                else if(strength <= 5)
-                {
-                    if (player.BigBlind && betAmount - player.Table.BigBlind == 0)
+                    if (betAmount == 0)
                         return BettingOptions.Check;
                     return BettingOptions.Fold;
                 }
                 else
                 {
-                    // Chances of a bluff
-                    int bluffOdd = rand.Next(0, bluffFreq);
-                    if(bluffFreq == 0)
-                    {
-                        player.RaiseAmount = BetAmount();
-                        return BettingOptions.Raise;
-                    }
-                    else if(bluffOdd == bluffFreq-1)
-                    {
-                        return BettingOptions.Call;
-                    }
-
-                    int temp;
-                    temp = (int)(strength - (player.BetIncrease / player.Table.BigBlind) + rand.Next((int)(strength)));
-
-                    if (temp >= 14)
-                    {
-                        return BettingOptions.Call; 
-                    }
-                    else
-                    {
-                        if (player.BigBlind && betAmount - player.Table.BigBlind == 0)
-                            return BettingOptions.Check;
-                        return BettingOptions.Fold;
-                    }
-                    
+                    player.RaiseAmount = BetAmount();
+                    return BettingOptions.Raise;
+                }
+            }
+            else if (rateOfReturn < 1)
+            {
+                if(decisionNum < 80)
+                {
+                    if (betAmount == 0)
+                        return BettingOptions.Check;
+                    return BettingOptions.Fold;
+                }
+                else if(decisionNum >= 80 && decisionNum < 85)
+                {
+                    if (betAmount == 0)
+                        return BettingOptions.Check;
+                    return BettingOptions.Call;
+                }
+                else
+                {
+                    player.RaiseAmount = BetAmount();
+                    return BettingOptions.Raise;
+                }
+            }
+            else if(rateOfReturn < 1.3)
+            {
+                if (decisionNum < 60)
+                {
+                    if (betAmount == 0)
+                        return BettingOptions.Check;
+                    return BettingOptions.Call;
+                }
+                else
+                {
+                    player.RaiseAmount = BetAmount();
+                    return BettingOptions.Raise;
+                }
+            }
+            else
+            {
+                if (decisionNum < 30)
+                {
+                    if (betAmount == 0)
+                        return BettingOptions.Check;
+                    return BettingOptions.Call;
+                }
+                else
+                {
+                    player.RaiseAmount = BetAmount();
+                    return BettingOptions.Raise;
                 }
             }
         }
 
+
+        /// <summary>
+        /// Shuffles The Deck Used For Simulating Hands
+        /// </summary>
+        /// <param name="knownCards">Any card the player can see</param>
+        /// <param name="shufflingDeck"></param>
+        /// <returns></returns>
+        public Hand ShuffleSimulationDeck(List<Card> knownCards)
+        {
+            // Take any known cards out of the simulation deck
+            foreach(Card c in fullDeck)
+            {
+                tempDeck.Add(c);
+            }
+            simDeck.Clear();
+
+            // Remove all cards from temp deck that are known
+            for (int i = 0; i < knownCards.Count; i++)
+            {
+                for(int j = 0; j < tempDeck.Count; j++)
+                {
+                    if(knownCards[i].Value == tempDeck[j].Value && knownCards[i].Suit == tempDeck[j].Suit)
+                    {
+                        tempDeck.Remove(tempDeck[j]);
+                        break;
+                    }
+                }
+            }
+            
+
+            int chosenCard; // Position of chosen card
+            int count = tempDeck.Count;
+            // Shuffling
+            for (int i = 0; i < count; i++)
+            {
+                chosenCard = rand.Next(0, count - i);
+                simDeck.Enqueue(tempDeck[chosenCard]);
+                tempDeck.Remove(tempDeck[chosenCard]);   // Makes sure a card can't be repeated
+            }
+
+            // Deal out cards until there are 7 in the hand
+            for(int i = knownCards.Count; i < 7; i++)
+            {
+                simDeck.Dequeue(); // Burn
+                knownCards.Add(simDeck.Dequeue()); // Deal
+            }
+
+            return new Hand(knownCards[0], knownCards[1], knownCards[2], knownCards[3], knownCards[4], knownCards[5], knownCards[6]);
+        }
 
         /// <summary>
         /// Determines How Much Will Be Bet
@@ -238,3 +259,167 @@ namespace TexasHoldemCalc
         }
     }
 }
+
+
+
+/*
+/// <summary>
+/// Determines the strength of a hand based off the players hole cards
+/// </summary>
+/// <returns>The strength as a double</returns>
+public BettingOptions PreFlop()
+{
+    // Get basic card values
+    foreach(Card c in player.HoleCards)
+    {
+
+        switch (c.Value)
+        {
+            case Values.Ace:
+                strength += 10;
+                break;
+            case Values.King:
+                strength += 8;
+                break;
+            case Values.Queen:
+                strength += 7;
+                break;
+            case Values.Jack:
+                strength += 6;
+                break;
+            default:
+                strength += (double)c.Value / 2;
+                break;
+        }
+    }
+
+    // Check to see if they are a pair or suited and give it a bonus
+    if (player.HoleCards[0].Value == player.HoleCards[1].Value)
+    {
+        strength *= 2;
+        pairBool = true;
+        // Set a minimum for pairs since 3 and 2 would be below a strength of 5
+        if(strength < 5)
+        {
+            strength = 5;
+        }
+    }
+    else if (player.HoleCards[0].Suit == player.HoleCards[1].Suit)
+    {
+        strength += 2;
+    }
+
+    // Subtract/Add for the gap between the cards from the strength
+    if(player.HoleCards[0].Value == player.HoleCards[1].Value + 1 || player.HoleCards[0].Value == player.HoleCards[1].Value - 1)
+    {
+        if(player.HoleCards[0].Value > Values.Jack || player.HoleCards[1].Value > Values.Jack)
+        {
+            strength += 2;
+        }
+        else
+        {
+            strength += 1;
+        }
+    }
+    else if (player.HoleCards[0].Value == player.HoleCards[1].Value + 2 || player.HoleCards[0].Value == player.HoleCards[1].Value - 2)
+    {
+        if (player.HoleCards[0].Value > Values.Jack || player.HoleCards[1].Value > Values.Jack)
+        {
+            strength += 1;
+        }
+        else
+        {
+            strength += .5;
+        }
+    }
+    else if(player.HoleCards[0].Value > player.HoleCards[1].Value)
+    {
+        strength -= player.HoleCards[0].Value - player.HoleCards[1].Value + 2;
+    }
+    else
+    {
+        strength -= player.HoleCards[1].Value - player.HoleCards[0].Value + 2;
+    }
+
+    if (pairBool)
+    {
+        if (strength >= 14)
+        {
+            return BettingOptions.Call;
+        }
+        else
+        {
+            // Chances of a bluff
+            int bluffOdd = rand.Next(0, bluffFreq);
+            if (bluffFreq == 0)
+            {
+                player.RaiseAmount = BetAmount();
+                return BettingOptions.Raise;
+            }
+            else if (bluffOdd == bluffFreq - 1)
+            {
+                return BettingOptions.Call;
+            }
+
+            int temp;
+            temp = (int)(strength - (player.BetIncrease / player.Table.BigBlind) + rand.Next(0, (int)(strength)));
+
+            if (temp >= 14)
+            {
+                return BettingOptions.Call;
+            }
+            else
+            {
+                if (player.BigBlind && betAmount - player.Table.BigBlind == 0)
+                    return BettingOptions.Check;
+                return BettingOptions.Fold;
+            }
+
+        }
+    }
+    else
+    {
+
+        if(strength >= 14)
+        {
+            return BettingOptions.Call;
+        }
+        else if(strength <= 5)
+        {
+            if (player.BigBlind && betAmount - player.Table.BigBlind == 0)
+                return BettingOptions.Check;
+            return BettingOptions.Fold;
+        }
+        else
+        {
+            // Chances of a bluff
+            int bluffOdd = rand.Next(0, bluffFreq);
+            if(bluffFreq == 0)
+            {
+                player.RaiseAmount = BetAmount();
+                return BettingOptions.Raise;
+            }
+            else if(bluffOdd == bluffFreq-1)
+            {
+                return BettingOptions.Call;
+            }
+
+            int temp;
+            temp = (int)(strength - (player.BetIncrease / player.Table.BigBlind) + rand.Next((int)(strength)));
+
+            if (temp >= 14)
+            {
+                return BettingOptions.Call; 
+            }
+            else
+            {
+                if (player.BigBlind && betAmount - player.Table.BigBlind == 0)
+                    return BettingOptions.Check;
+                return BettingOptions.Fold;
+            }
+
+        }
+    }
+}
+
+*/

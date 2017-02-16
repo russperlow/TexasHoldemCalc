@@ -55,32 +55,50 @@ namespace TexasHoldemCalc
         /// </summary>
         public void SortHand()
         {
+            for(int i = 0; i < handList.Count; i++)
+            {
+                for(int j = 0; j < handList.Count - 1; j++)
+                {
+                    if(handList[j].Value < handList[j + 1].Value)
+                    {
+                        Card temp = handList[j];
+                        handList[j] = handList[j + 1];
+                        handList[j + 1] = temp;
+                    }
+                }
+            }
+            /*
             List<Card> temp = new List<Card>();
             temp = handList;
             for (int i = 0; i < 7; i++)
             {
                 handList[i] = SortingLoop(temp);
             }
+            */
         }
 
+        /*
         /// <summary>
         /// Loops through remaining cards to find the next highest
         /// </summary>
         /// <returns>The highest found card</returns>
-        public Card SortingLoop(List<Card> temp)
+        public Card SortingLoop(List<Card> temp2)
         {
-            Card highestCard = temp[0];
-            for(int j = 0; j < temp.Count(); j++)
+            
+            /*
+            Card highestCard = temp2[0];
+            for(int j = 0; j < temp2.Count(); j++)
             {
-                if(highestCard.Value < temp[j].Value)
+                if(highestCard.Value < temp2[j].Value)
                 {
-                    highestCard = temp[j];
+                    highestCard = temp2[j];
                 }
             }
-            temp.Remove(highestCard);
+            temp2.Remove(highestCard);
             return highestCard;
+            
         }
-
+        */
         /// <summary>
         /// Value and suit necessary for straight/royal flush
         /// </summary>
